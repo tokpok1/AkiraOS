@@ -55,7 +55,7 @@ python3 --version # Should show 3.8+
 mkdir ~/akira-workspace && cd ~/akira-workspace
 
 # Clone AkiraOS
-git clone --recursive https://github.com/akiraos/AkiraOS.git
+git clone --recursive https://github.com/ArturR0k3r/AkiraOS.git
 cd AkiraOS
 ```
 
@@ -82,7 +82,7 @@ west update
 └── tools/            # Build utilities
 ```
 
-⏱️ **Time:** 5-10 minutes
+**Time:** 5-10 minutes
 
 ### Step 3: Install Zephyr SDK
 
@@ -107,7 +107,7 @@ export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk-0.17.4
 export ZEPHYR_BASE=~/akira-workspace/zephyr
 ```
 
-⏱️ **Time:** 10-15 minutes
+**Time:** 10-15 minutes
 
 ### Step 4: ESP32 Support (Platform-Specific)
 
@@ -120,7 +120,32 @@ cd ~/akira-workspace
 west blobs fetch hal_espressif
 ```
 
-⏱️ **Time:** 2-3 minutes
+**Time:** 2-3 minutes
+
+### Step 5: ESP32 Flashing Tools (WSL Users)
+
+If you're using WSL (Windows Subsystem for Linux), you may need to install esptool in a Python virtual environment to avoid permission issues:
+
+```bash
+# Create a virtual environment
+python3 -m venv ~/akira-workspace/.venv
+
+# Activate the virtual environment
+source ~/akira-workspace/.venv/bin/activate
+
+# Install esptool in the virtual environment
+pip install esptool
+```
+
+**Note:** You'll need to activate the virtual environment each time you start a new terminal session before flashing:
+```bash
+source ~/akira-workspace/.venv/bin/activate
+```
+
+To deactivate the virtual environment (although building should be done in venv):
+```bash
+deactivate
+```
 
 ## Verify Installation
 
@@ -129,12 +154,8 @@ west blobs fetch hal_espressif
 ```bash
 cd ~/akira-workspace/AkiraOS
 
-# Build for native_sim
-./build.sh -b native_sim
-
-# Run
-cd ../build/zephyr
-./zephyr.exe
+# Build and run native_sim (runs automatically after build)
+./build.sh
 ```
 
 **Expected output:**
@@ -142,7 +163,7 @@ cd ../build/zephyr
 *** Booting Zephyr OS build v4.3.0 ***
 [00:00:00.000] <inf> main: AkiraOS v1.4.9 Gl1tch starting...
 [00:00:00.010] <inf> wasm: Runtime initialized
-uart:~$ 
+AkiraOS:~$ 
 ```
 
 Press `Ctrl+C` to exit.
@@ -182,18 +203,18 @@ For **ESP32-S3 DevKitM:**
 
 ### WiFi Credentials (ESP32)
 
-Edit board config file:
+Set credentials in your board config before building:
+
 ```bash
 # boards/esp32s3_devkitm_esp32s3_procpu.conf
 CONFIG_WIFI_SSID="YourNetwork"
 CONFIG_WIFI_PSK="YourPassword"
 ```
 
-Or use menuconfig:
+Verify connection after boot:
 ```bash
-cd ~/akira-workspace/AkiraOS
-west build -t menuconfig
-# Navigate to: Networking → WiFi
+AkiraOS:~$ net iface    # shows IP address when connected
+AkiraOS:~$ wifi connect -s YourNetwork -p YourPassword   # manual connect
 ```
 
 ### Global Settings
@@ -287,7 +308,7 @@ rm -rf ../build
 ## Next Steps
 
 - [Build Your First App](first-app.md) - WASM Hello World
-- [Platform Guides](../platform/) - Board-specific setup
+- [Platform Guides](../platform) - Board-specific setup
 - [Troubleshooting](troubleshooting.md) - Common issues
 
 ## Quick Reference
@@ -295,9 +316,10 @@ rm -rf ../build
 **Workspace:**
 ```bash
 ~/akira-workspace/
-├── AkiraOS/          # Application
-├── zephyr/           # Zephyr RTOS
-└── build/            # Build output
+├── AkiraOS/                    # Application
+├── zephyr/                     # Zephyr RTOS
+├── build-native-sim/           # native_sim build output
+└── build-esp32s3-.../          # ESP32-S3 build output
 ```
 
 **Common Commands:**
@@ -305,7 +327,7 @@ rm -rf ../build
 ./build.sh -b native_sim              # Build for simulation
 ./build.sh -b esp32s3_devkitm_esp32s3_procpu  # Build for ESP32-S3
 west flash                            # Flash to hardware
-west espressif monitor                # Open serial console
+west espmonitor                # Open serial console
 ```
 
 **Build Script Options:**

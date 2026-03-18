@@ -10,25 +10,21 @@ Embed manifest as a WASM custom section (preferred method):
 
 ```wasm
 (module
-  ;; Custom section: akira-manifest
-  (custom "akira-manifest"
-    (data "\
-      name: sensor_logger\n\
-      version: 1.2.0\n\
-      capabilities: sensor,fs_write,display\n\
-      memory_quota: 81920\n\
-      description: Logs sensor data to file\n\
-    ")
+  ;; Custom section: .akira.manifest  (content must be valid JSON)
+  (custom ".akira.manifest"
+    (data "{\"name\":\"sensor_logger\",\"version\":\"1.2.0\",\"capabilities\":[\"sensor.read\",\"storage.write\",\"display.write\"],\"memory_quota\":81920}")
   )
   
   ;; Rest of WASM module...
 )
 ```
 
+> **Important:** The custom section content is parsed as **JSON**, not as key-value pairs. The embedded data must be a valid JSON object.
+
 **Advantages:**
-- ✅ Single file deployment
-- ✅ Manifest travels with code
-- ✅ No separate JSON to manage
+- Single file deployment
+- Manifest travels with the binary
+- No separate JSON file to manage
 
 ### External JSON Manifest (Legacy)
 
@@ -40,7 +36,7 @@ Separate `.json` file alongside `.wasm` file:
   "name": "sensor_logger",
   "version": "1.2.0",
   "author": "AkiraOS Team",
-  "capabilities": ["sensor", "fs_write", "display"],
+  "capabilities": ["sensor.read", "storage.write", "display.write"],
   "memory_quota": 81920,
   "description": "Logs sensor data to file"
 }
@@ -89,35 +85,71 @@ Array of permission strings.
 
 ```json
 {
-  "capabilities": ["display", "input", "sensor", "rf"]
+  "capabilities": ["display.write", "input.read", "sensor.read", "rf.transceive"]
 }
 ```
 
 **Available Capabilities:**
-| Capability | Grants Access To | Risk Level |
-|------------|------------------|------------|
-| `display` | Screen rendering | Low |
-| `input` | Button/touch reading | Low |
-| `sensor` | All sensors (IMU, temp, etc.) | Low |
-| `rf` | WiFi/BT/LoRa send/receive | **Medium** |
-| `fs_read` | File system read | **Medium** |
-| `fs_write` | File system write | **High** |
-| `network_client` | HTTP/TCP client | **High** |
-| `network_server` | HTTP/TCP server | **High** |
 
-**Special Capabilities (Auto-Granted):**
-- `log` - Always available, no declaration needed
-- `time` - Always available
+| Capability | Grants Access To |
+|------------|------------------|
+| `display.write` | Screen rendering (all `display_*` functions) |
+| `input.read` | Button/touch input events |
+| `gpio.read` | `gpio_read()`, `gpio_configure()` |
+| `gpio.write` | `gpio_write()`, `gpio_configure()` |
+| `sensor.read` | All `sensor_read()` channels (IMU, temp, etc.) |
+| `timer` | All `timer_*()` functions |
+| `ble` | All `ble_*()` functions |
+| `hid` | All `hid_*()` functions |
+| `storage.read` | `storage_open(O_READ)`, `storage_list()` |
+| `storage.write` | `storage_open(O_WRITE/APPEND)`, `storage_delete()` |
+| `network.*` | All `net_*()` TCP/UDP socket functions |
+| `ipc` | All `msg_*()` publish/subscribe functions |
+| `app.control` | `app_start()`, `app_stop()`, `app_list()`, `app_get_status()`, `app_get_self_name()` |
+| `app.switch` | `app_switch()` |
+| `rf.transceive` | All `rf_*()` radio functions |
+| `uart` | All `uart_*()` functions |
+| `i2c` | All `i2c_*()` functions |
+| `pwm` | All `pwm_*()` functions |
+| `power.read` | `power_get_*()` |
+| `power.control` | `power_set_*()`, `power_wake_*()` |
+| `memory` | `mem_alloc()`, `mem_free()` |
+| `app.info` | `app_get_status()`, `app_list()`, `app_get_self_name()` (read-only) |
+| `input.write` | Inject synthetic input events |
+
+`printf()` and `delay()` are always available and require no capability declaration.
 
 **Example:**
 ```json
 {
-  "capabilities": [
-    "display",     // Minimal display app
-    "input"
-  ]
+  "capabilities": ["display.write", "input.read"]
 }
 ```
+
+#### Capability Aliases & Wildcards
+
+The following group aliases are recognized and expand to all capabilities of that subsystem:
+
+| Alias | Equivalent To |
+|-------|---------------|
+| `display.*` | `display.write` |
+| `input.*` | `input.read` + `input.write` |
+| `sensor.*` | `sensor.read` |
+| `rf.*` | `rf.transceive` |
+| `storage.*` | `storage.read` + `storage.write` |
+| `gpio.*` | `gpio.read` + `gpio.write` |
+| `bt.*` | `ble` + `hid` |
+| `hw.*` | `timer` + `uart` + `i2c` + `pwm` |
+| `power.*` | `power.read` + `power.control` |
+| `*` | All capabilities |
+
+**Legacy / alternate names also accepted:**
+
+| Alias | Resolves To |
+|-------|-------------|
+| `bt.shell` | `ble` |
+| `display.read` | `display.write` |
+| `memory.alloc` | `memory` |
 
 ---
 
@@ -131,9 +163,10 @@ Per-app memory limit in bytes.
 }
 ```
 
-**Default:** 64KB (65536 bytes)  
-**Maximum:** 128KB (131072 bytes)  
-**Minimum:** 16KB (16384 bytes)
+**Default:** No limit (unlimited heap) — omitting this field or setting it to `0` disables quota enforcement entirely.
+**Recommended maximum:** 128KB (131072 bytes)
+
+> **Note:** The runtime applies quota enforcement only when `memory_quota > 0`. There is no enforced minimum or maximum; the parser accepts any integer value as-is. The previously documented defaults of 64KB / min 16KB / max 128KB are not enforced by the runtime.
 
 **Guidelines:**
 - Simple apps: 32-64KB
@@ -156,6 +189,8 @@ Human-readable app description.
 
 Max length: 256 characters
 
+> **Runtime note:** This field is parsed from the manifest but is not stored in the runtime manifest struct. It has no effect on app execution and is currently informational only.
+
 ---
 
 ### `author` (Optional)
@@ -167,6 +202,8 @@ Developer or organization name.
   "author": "AkiraOS Team"
 }
 ```
+
+> **Runtime note:** This field is parsed from the manifest but is not stored in the runtime manifest struct. It has no effect on app execution.
 
 ---
 
@@ -184,6 +221,8 @@ Auto-start app on boot.
 
 **Note:** Only one app can have `autostart: true`
 
+> **Runtime note:** This field is currently parsed but silently ignored — it is not stored in the runtime manifest struct and has no effect on boot behavior.
+
 ---
 
 ### `priority` (Optional)
@@ -199,6 +238,8 @@ Execution priority hint (future use).
 **Range:** 1 (lowest) to 10 (highest)  
 **Default:** 5
 
+> **Runtime note:** This field is parsed but silently ignored at runtime — it is not stored in the runtime manifest struct and currently has no effect on scheduling.
+
 ---
 
 ## Complete Examples
@@ -209,7 +250,7 @@ Execution priority hint (future use).
 {
   "name": "hello_world",
   "version": "1.0.0",
-  "capabilities": ["display", "log"]
+  "capabilities": ["display.write"]
 }
 ```
 
@@ -221,7 +262,7 @@ Execution priority hint (future use).
   "version": "2.1.0",
   "author": "Akira Team",
   "description": "Logs temperature and humidity to file",
-  "capabilities": ["sensor", "fs_write", "display"],
+  "capabilities": ["sensor.read", "storage.write", "display.write"],
   "memory_quota": 81920,
   "autostart": false
 }
@@ -236,10 +277,10 @@ Execution priority hint (future use).
   "author": "IoT Corp",
   "description": "Forwards sensor data to cloud",
   "capabilities": [
-    "sensor",
-    "network_client",
-    "rf",
-    "fs_read"
+    "sensor.read",
+    "network.*",
+    "rf.transceive",
+    "storage.read"
   ],
   "memory_quota": 131072,
   "priority": 8,
@@ -254,7 +295,7 @@ Execution priority hint (future use).
   "name": "clock",
   "version": "1.0.0",
   "description": "Displays current time",
-  "capabilities": ["display"],
+  "capabilities": ["display.write"],
   "memory_quota": 32768
 }
 ```
@@ -267,38 +308,34 @@ Apps can combine capabilities based on use case:
 
 | Use Case | Capabilities | Memory Quota |
 |----------|--------------|--------------|
-| **Display-only UI** | `display`, `input` | 32-64KB |
-| **Sensor Monitor** | `sensor`, `display` | 48-80KB |
-| **Data Logger** | `sensor`, `fs_write` | 64-96KB |
-| **RF Beacon** | `rf` | 32KB |
-| **Network Client** | `network_client`, `sensor` | 96-128KB |
-| **Gateway** | `sensor`, `rf`, `network_client` | 128KB |
+| Display UI | `display.write`, `input.read` | 32–64 KB |
+| Sensor monitor | `sensor.read`, `display.write` | 48–80 KB |
+| Data logger | `sensor.read`, `storage.write` | 64–96 KB |
+| RF beacon | `rf.transceive` | 32 KB |
+| Network client | `network.*`, `sensor.read` | 96–128 KB |
+| BLE peripheral | `ble`, `display.write` | 64 KB |
+| HID device | `hid`, `gpio.read` | 32–64 KB |
 
 ---
 
 ## Manifest Loading Priority
 
-1. **Embedded custom section** (`akira-manifest`)
+1. **Embedded custom section** (`.akira.manifest`)
 2. **External JSON** (`<app_name>.json`)
-3. **Default fallback** (minimal capabilities)
+3. **No manifest** — app loads with zero capabilities (`cap_mask = 0`) and no memory quota limit
+
+> **Note:** There is no built-in default-capability fallback. If neither source is found, `manifest_parse_with_fallback()` returns `-ENOENT` and the app is granted no capabilities.
 
 ---
 
 ## Validation Rules
 
 Runtime validates manifests and rejects apps that:
-- Exceed max name length (31 chars)
-- Request undefined capabilities
-- Request quota > 128KB
-- Have invalid version format
-- Missing required fields
+- Exceed max name length (31 chars) — `name` is truncated to 31 characters
+- Have malformed JSON — returns `-EINVAL`
+- Provide a malformed `capabilities` value (not an array) — returns `-EINVAL`
 
-**Error Handling:**
-```bash
-uart:~$ wasm load /apps/bad_app.wasm
-[ERR] Manifest validation failed: unknown capability 'admin'
-[ERR] Failed to load app
-```
+> **Note:** Unknown capability strings (e.g. `"admin"`) are **not** rejected — `akira_capability_str_to_mask()` silently returns `0` for unrecognised strings, which are simply OR-ed into the mask with no effect. Invalid version strings and quota values outside any range are accepted without error.
 
 ---
 
@@ -308,17 +345,17 @@ uart:~$ wasm load /apps/bad_app.wasm
 
 Only request capabilities you actually use:
 
-❌ **Bad:**
+**Too broad (avoid):**
 ```json
 {
-  "capabilities": ["display", "input", "sensor", "rf", "fs_write", "network_client"]
+  "capabilities": ["display.write", "input.read", "sensor.read", "rf.transceive", "storage.write", "network.*"]
 }
 ```
 
-✅ **Good:**
+**Minimal (preferred):**
 ```json
 {
-  "capabilities": ["display", "input"]
+  "capabilities": ["display.write", "input.read"]
 }
 ```
 
@@ -328,7 +365,7 @@ Before installing an app, review its manifest:
 
 ```bash
 # Extract manifest from WASM
-wasm-objdump -x app.wasm | grep akira-manifest
+wasm-objdump -x app.wasm | grep .akira.manifest
 
 # Or check JSON
 cat app.json
@@ -336,7 +373,7 @@ cat app.json
 
 **Red flags:**
 - `network_server` without clear need
-- `fs_write` in display-only app
+- `storage.write` in display-only app
 - Excessive memory quota
 
 ---
@@ -350,18 +387,18 @@ cat app.json
 cargo install wasm-tools
 
 # Add custom section
-wasm-tools custom app.wasm --add-section akira-manifest=manifest.txt
+wasm-tools custom app.wasm --add-section .akira.manifest=manifest.txt
 ```
 
 ### Using WAT (WebAssembly Text Format)
 
 ```wat
 (module
-  (custom "akira-manifest"
-    (data "name: my_app\nversion: 1.0.0\ncapabilities: display\n")
+  (custom ".akira.manifest"
+    (data "{\"name\":\"my_app\",\"version\":\"1.0.0\",\"capabilities\":[\"display.write\"]}")
   )
   
-  (import "akira" "display_clear" (func $display_clear (param i32) (result i32)))
+  (import "env" "display_clear" (func $display_clear (param i32) (result i32)))
   
   (func (export "_start")
     i32.const 0

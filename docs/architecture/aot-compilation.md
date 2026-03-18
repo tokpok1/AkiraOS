@@ -8,11 +8,13 @@ AkiraOS includes AOT (Ahead-of-Time) compilation support through WAMR, enabling 
 
 ### Current State
 
-**✅ AOT Compiler Integration:** WAMR AOT support is compiled in for Xtensa/ESP32-S3  
-**📦 Default Mode:** Applications currently run in interpreter mode (.wasm bytecode)  
-**🚀 Available Capability:** AOT execution is ready to use when .aot files are provided
+**AOT Compilation Disabled by Default:** WAMR AOT support is currently disabled via `CONFIG_WAMR_AOT_SUPPORT=n` in `prj.conf`.
+**Default Mode:** Applications run in interpreter mode (.wasm bytecode).
+**To Enable:** Rebuild the project with `CONFIG_WAMR_AOT_SUPPORT=y` in your Kconfig. When enabled, AOT execution is used when `.aot` files are present.
 
 **Key Point:** AOT is a **compilation option**, not a runtime mode. The system can load both .wasm (interpreted) and .aot (native) files.
+
+**Note:** While compiling AOT application you lose cross-platform so carefull consideration of using this option is needed.
 
 ---
 
@@ -34,10 +36,10 @@ AkiraOS includes AOT (Ahead-of-Time) compilation support through WAMR, enabling 
 - Game logic: ~10-15x faster
 
 **Benefits:**
-- ⚡ **Near-native CPU performance** - Direct machine code execution
-- 🔋 **Lower power consumption** - Reduced per-instruction overhead
-- 🎮 **Smooth UX** - 60 FPS display rendering, responsive games
-- 💾 **Predictable performance** - No interpreter overhead variability
+- Near-native CPU performance — direct machine code execution
+- Lower power consumption — reduced per-instruction overhead
+- Smooth rendering — 60 FPS display, responsive game loops
+- Predictable performance — no interpreter overhead variability
 
 ---
 
@@ -56,10 +58,10 @@ wamrc --target=x86-64    →  app_native.aot    (Native sim only)
 ```
 
 **Implications:**
-- ✅ Maximum performance on target hardware
-- ❌ Need one binary per architecture
-- ❌ Larger storage if supporting multiple platforms
-- ✅ Runtime can detect and use correct binary
+- Maximum performance on target hardware
+- One binary per architecture required
+- Larger storage when supporting multiple platforms
+- Runtime auto-detects and loads the correct binary
 
 ---
 
@@ -76,15 +78,15 @@ app.wasm  →  Upload to device  →  WAMR interprets bytecode
 ```
 
 **Pros:**
-- ✅ Single binary works on all platforms
-- ✅ Smaller file size (no native code bloat)
-- ✅ Faster compile times during development
-- ✅ Lower storage requirements
+- Single binary works on all platforms
+- Smaller file size (no native code)
+- Faster compile times during development
+- Lower storage requirements
 
 **Cons:**
-- ❌ Slower execution (1x baseline)
-- ❌ Higher CPU usage for same workload
-- ❌ More battery drain on mobile devices
+- Slower execution (1x baseline)
+- Higher CPU usage for the same workload
+- Higher power consumption
 
 **Best For:**
 - Simple UI apps
@@ -103,14 +105,14 @@ app.c  →  clang → app.wasm  →  wamrc → app.aot  →  Upload to device
 ```
 
 **Pros:**
-- ✅ Maximum performance (10-50x faster)
-- ✅ Lower power consumption
-- ✅ Optimal for compute-heavy workloads
+- Maximum performance (10–50x faster)
+- Lower power consumption
+- Optimal for compute-heavy workloads
 
 **Cons:**
-- ❌ Architecture-specific binary
-- ❌ Larger file size (~2-3x bigger than .wasm)
-- ❌ Must recompile for each platform
+- Architecture-specific binary
+- Larger file size (~2–3x bigger than .wasm)
+- Must recompile for each target platform
 
 **Best For:**
 - Gaming engines
@@ -135,15 +137,14 @@ Not found?  → Fall back to .wasm interpreter
 ```
 
 **Pros:**
-- ✅ Best of both worlds
-- ✅ AOT performance where available
-- ✅ Universal fallback for unsupported platforms
-- ✅ Graceful degradation
+- AOT performance on supported architectures
+- Universal fallback for unsupported platforms
+- Graceful degradation without code changes
 
 **Cons:**
-- ❌ Requires storing multiple files
-- ❌ More complex build pipeline
-- ❌ Higher storage usage
+- Requires storing multiple files
+- More complex build pipeline
+- Higher total storage usage
 
 **Best For:**
 - Most serious WAMR deployments
@@ -221,38 +222,6 @@ wamrc --target=x86-64 \
 
 ## Runtime Loading (Developer View)
 
-### Current Implementation
-
-```c
-// src/runtime/akira_runtime.c (simplified)
-
-int akira_load_app(const char *name, const char *file_path) {
-    // Step 1: Check if .aot file exists
-    char aot_path[128];
-    snprintf(aot_path, sizeof(aot_path), "/lfs/%s_%s.aot", name, ARCH_NAME);
-    
-    bool is_aot = false;
-    if (fs_exists(aot_path)) {
-        file_path = aot_path;
-        is_aot = true;
-    }
-    
-    // Step 2: Load file into buffer
-    uint8_t *buffer;
-    uint32_t size;
-    load_file_chunked(file_path, &buffer, &size);
-    
-    // Step 3: Load module (WAMR auto-detects .aot vs .wasm)
-    wasm_module_t module = wasm_runtime_load(buffer, size, error_buf, sizeof(error_buf));
-    
-    // Step 4: Instantiate and run
-    wasm_module_inst_t instance = wasm_runtime_instantiate(module, stack_size, heap_size, ...);
-    
-    LOG_INF("Loaded %s in %s mode", name, is_aot ? "AOT" : "interpreter");
-    return 0;
-}
-```
-
 **Key Points:**
 - WAMR auto-detects file format (magic bytes differ)
 - `.wasm` files: `0x00 0x61 0x73 0x6D` (WASM bytecode)
@@ -289,18 +258,18 @@ deploy: app.wasm app_esp32s3.aot
 
 ### When to Use AOT
 
-**AOT is Beneficial:**
-- ✅ Tight loops (physics, rendering)
-- ✅ Math-heavy operations
-- ✅ Frequent function calls
-- ✅ Real-time constraints (audio, video)
-- ✅ Battery-powered devices
+**AOT is beneficial:**
+- Tight loops (physics, rendering)
+- Math-heavy operations
+- Frequent function calls
+- Real-time constraints (audio, video)
+- Battery-powered devices
 
-**Interpreter is Fine:**
-- ✅ I/O-bound apps (network, sensors)
-- ✅ Infrequent execution (configuration)
-- ✅ Simple state machines
-- ✅ Prototyping/debugging
+**Interpreter is sufficient:**
+- I/O-bound apps (network, sensor polling)
+- Infrequent execution (configuration utilities)
+- Simple state machines
+- Prototyping and debugging
 
 ### Profiling Strategy
 
@@ -340,42 +309,6 @@ deploy: app.wasm app_esp32s3.aot
 
 ---
 
-## Future Enhancements
-
-### Planned Features
-
-1. **Auto-Detection Script**
-   ```bash
-   # akira_compile.sh
-   # Detects target platforms and compiles all variants
-   ```
-
-2. **Multi-Arch Bundles**
-   ```
-   app.akira (ZIP container)
-   ├── manifest.json
-   ├── app.wasm
-   ├── esp32s3.aot
-   ├── stm32.aot
-   └── nrf54.aot
-   ```
-
-3. **OTA AOT Updates**
-   - Download AOT binary for current architecture
-   - Verify signature + hash
-   - Hot-swap without reboot
-
-4. **Runtime Performance Metrics**
-   ```c
-   // Expose via shell
-   akira> perf app_name
-   Execution mode: AOT (xtensa)
-   Avg instruction time: 2.3ns
-   Cache hit rate: 94%
-   ```
-
----
-
 ## Best Practices
 
 ### Development Workflow
@@ -386,16 +319,6 @@ deploy: app.wasm app_esp32s3.aot
 4. **Benchmark** (compare interpreter vs AOT performance)
 5. **Deploy hybrid** (AOT + .wasm fallback)
 
-### Deployment Checklist
-
-- [ ] `.wasm` compiled with optimizations (`-O3`)
-- [ ] `.wasm` stripped of debug info (`wasm-strip`)
-- [ ] `.aot` compiled for target architecture
-- [ ] `.aot` size-optimized (`--size-level=3`)
-- [ ] Both files tested on actual hardware
-- [ ] Fallback to .wasm verified
-- [ ] Performance metrics captured
-
 ---
 
 ## Related Documentation
@@ -403,7 +326,7 @@ deploy: app.wasm app_esp32s3.aot
 - [AkiraRuntime Architecture](runtime.md) - Runtime internals
 - [Building WASM Apps](../development/building-apps.md) - Compilation workflow
 - [Performance Benchmarks](../resources/performance.md) - Real-world metrics
-- [Platform Guides](../platform/) - Architecture-specific notes
+- [Platform Guides](../platform) - Architecture-specific notes
 
 ---
 
@@ -415,10 +338,4 @@ deploy: app.wasm app_esp32s3.aot
 
 ---
 
-<div align="center">
-
-**Ready to compile AOT binaries?**
-
-[Building Apps Guide →](../development/building-apps.md)
-
-</div>
+See [Building Apps Guide](../development/building-apps.md) for the complete build workflow.
