@@ -21,7 +21,7 @@ config AKIRA_LOG_LEVEL
 
 config AKIRA_DISPLAY_ILI9341
     bool "Enable ILI9341 display driver"
-    default y
+    default n
     depends on DISPLAY && SPI
     help
       Enable ILI9341 TFT display driver.
@@ -70,7 +70,7 @@ config AKIRA_RUNTIME_CUSTOM
 
 config WAMR_HEAP_SIZE
     int "WAMR heap warning threshold (bytes)"
-    default 262144
+    default 16384
     help
       Soft quota warning threshold for WAMR dynamic allocations.
       The runtime now uses Alloc_With_Allocator (PSRAM-first,
@@ -88,7 +88,7 @@ config AKIRA_WASM_APP_STACK_SIZE
     # 8 KB is sufficient for WAMR instantiate + fs I/O + native dispatch.
     # Constrained non-PSRAM boards (nRF54L15, etc.) can reduce to 4096.
     int "WASM app Zephyr thread stack size (bytes)"
-    default 8192
+    default 4096
     depends on AKIRA_WASM_RUNTIME
     help
       Stack size for the Zephyr k_thread that hosts each WASM app.
@@ -118,7 +118,7 @@ config AKIRA_WASM_APP_PRIORITY
 
 config MAX_CONTAINERS
     int "Maximum number of concurrently loaded WASM containers"
-    default 8
+    default 4
     help
       Maximum number of WASM instances that can be loaded concurrently.
       Boards with more PSRAM can increase this value (CONFIG_MAX_CONTAINERS).
@@ -271,7 +271,7 @@ config AKIRA_USB
 
 config AKIRA_MODULE_WIFI
     bool "Enable Akira Connectivity module (WiFi/BLE/Cloud)"
-    default n
+    default y
     help
       Enable higher-level connectivity providers (WiFi, BLE, Cloud).
 
@@ -581,7 +581,7 @@ config AKIRA_CLOUD_HEARTBEAT_MS
 
 config AKIRA_CLOUD_BT_ENABLED
     bool "Enable Bluetooth (AkiraApp) source"
-    default y
+    default n
     depends on AKIRA_CLOUD_CLIENT && BT
     help
       Accept cloud protocol messages via Bluetooth from AkiraApp.
@@ -603,7 +603,7 @@ config AKIRA_CLOUD_APP_HANDLER
 
 config AKIRA_CLOUD_OTA_HANDLER
     bool "Enable OTA handler"
-    default y
+    default n
     depends on AKIRA_CLOUD_CLIENT && AKIRA_OTA
     help
       Handle firmware update messages from cloud/BT/web.
@@ -618,7 +618,7 @@ config AKIRA_CLOUD_AUTO_INSTALL_APPS
 
 config AKIRA_CLOUD_AUTO_START_APPS
     bool "Auto-start installed apps"
-    default n
+    default y
     depends on AKIRA_CLOUD_AUTO_INSTALL_APPS
     help
       Automatically start apps after installation.
@@ -672,7 +672,7 @@ config AKIRA_APP_MANAGER
 
 config AKIRA_APP_MAX_INSTALLED
     int "Maximum installed apps"
-    default 8
+    default 4
     range 4 16
     depends on AKIRA_APP_MANAGER
     help
@@ -690,7 +690,7 @@ config AKIRA_APP_MAX_RUNNING
 
 config AKIRA_APP_MAX_SIZE_KB
     int "Maximum app size (KB)"
-    default 1024
+    default 32
     range 16 2048
     depends on AKIRA_APP_MANAGER
     help
@@ -724,7 +724,7 @@ config AKIRA_APP_SOURCE_HTTP
 
 config AKIRA_APP_SOURCE_BLE
     bool "Enable BLE app transfer"
-    default y
+    default n
     depends on AKIRA_APP_MANAGER && BT
     help
       Allow app installation via Bluetooth GATT transfer.
@@ -758,7 +758,7 @@ menu "Auto-Restart"
 
 config AKIRA_APP_AUTO_RESTART
     bool "Enable auto-restart on crash"
-    default n
+    default y
     depends on AKIRA_APP_MANAGER
     help
       Automatically restart apps that crash.
@@ -788,7 +788,7 @@ menu "OTA Updates"
 
 config AKIRA_OTA
     bool "Enable OTA updates"
-    default y
+    default n
     help
       Enable Over-The-Air firmware update support.
 
@@ -801,7 +801,7 @@ config AKIRA_OTA_HTTP
 
 config AKIRA_OTA_BLE
     bool "Enable BLE OTA transport"
-    default y
+    default n
     depends on AKIRA_OTA && BT
     help
       Enable OTA updates via Bluetooth Low Energy.
@@ -835,7 +835,7 @@ menu "Power Management"
 
 config AKIRA_POWER_MANAGER
     bool "Enable power management"
-    default y
+    default n
     help
       Enable system power management with sleep modes
       and battery monitoring.
@@ -894,7 +894,7 @@ config AKIRA_BATTERY_ADC_VDIV_MUL
 
 config AKIRA_WASM_POWER
     bool "Enable WASM power/battery read API"
-    default y
+    default n
     depends on AKIRA_POWER_MANAGER && AKIRA_WASM_RUNTIME
     help
       Expose power_get_mode, power_get_battery_level and
@@ -1016,7 +1016,7 @@ config AKIRA_MODULE_CACHE
 
 config AKIRA_MODULE_CACHE_SIZE
     int "Module cache entries"
-    default 4
+    default 2
     range 2 8
     depends on AKIRA_MODULE_CACHE
     help
@@ -1182,7 +1182,7 @@ endmenu
 
 config AKIRA_WASM_NET
     bool "Export Network API to WASM (TCP/UDP sockets)"
-    default n
+    default y
     depends on AKIRA_WASM_API && (NET_TCP || NET_UDP)
     help
       Export a stream-based TCP/UDP socket API to WASM applications.
@@ -1212,7 +1212,7 @@ config AKIRA_NET_POLL_STACK_SIZE
 
 config AKIRA_NET_EVENT_QUEUE_DEPTH
     int "Network event queue depth (messages)"
-    default 8
+    default 4
     range 4 32
     depends on AKIRA_WASM_NET
     help
@@ -1252,7 +1252,7 @@ config AKIRA_HID_MAX_ACTIONS
 
 config AKIRA_WASM_LIFECYCLE
     bool "Export App Lifecycle API to WASM"
-    default n
+    default y
     depends on AKIRA_WASM_API && AKIRA_APP_MANAGER
     help
       Export app_start / app_stop / app_restart / app_get_status /
@@ -1292,7 +1292,7 @@ config AKIRA_IPC_MAX_SUBS_PER_TOPIC
 
 config AKIRA_IPC_MSG_MAX_SIZE
     int "Maximum IPC message payload size (bytes)"
-    default 64
+    default 16
     range 16 1024
     depends on AKIRA_WASM_IPC
     help
@@ -1405,7 +1405,7 @@ config AKIRA_SETTINGS_MAX_KEYS
 
 config AKIRA_SETTINGS_MAX_VALUE_LEN
     int "Maximum value length (bytes)"
-    default 64
+    default 65
     range 32 256
     help
       Maximum length of a single value in bytes.
