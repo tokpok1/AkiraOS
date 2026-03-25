@@ -207,7 +207,7 @@ config AKIRA_FONTS_IN_PSRAM
 
 config AKIRA_FRAMEBUFFER_IN_PSRAM
     bool "Place framebuffer in PSRAM (if available)"
-    default n
+    default y
     depends on MEMC
     help
       When enabled, large framebuffer buffers used on hardware platforms
@@ -218,7 +218,7 @@ endmenu
 
 config AKIRA_PSRAM
     bool "Enable Akira PSRAM helper APIs"
-    default n
+    default y
     depends on MEMC
     help
       Enable Akira PSRAM helper APIs which provide a thin wrapper for allocating
@@ -298,7 +298,7 @@ config AKIRA_HID_GAMEPAD
 
 config AKIRA_BT_HID
     bool "Enable Bluetooth HID"
-    default n
+    default y
     depends on AKIRA_HID && BT
     help
       Enable HID over Bluetooth Low Energy (BLE).
