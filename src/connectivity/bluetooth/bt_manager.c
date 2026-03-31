@@ -244,7 +244,7 @@ static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 #if CONFIG_AKIRA_HID_MODE_KB_MOUSE
     BT_DATA_BYTES(BT_DATA_GAP_APPEARANCE,
-                BT_BYTES_LIST_LE16(0x03C1)), /* Keyboard */
+                BT_BYTES_LIST_LE16(0x03C2)), /* Keyboard 0x3C1*/
 #elif CONFIG_AKIRA_HID_MODE_GAMEPAD
     BT_DATA_BYTES(BT_DATA_GAP_APPEARANCE,
                 BT_BYTES_LIST_LE16(0x03C4)), /* Gamepad */

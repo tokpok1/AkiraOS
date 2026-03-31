@@ -36,7 +36,7 @@ config AKIRA_TOUCH_XPT2046
 
 config AKIRA_WASM_RUNTIME
     bool "Enable WebAssembly runtime (WAMR)"
-    default n
+    default y
     help
       Enable the unified Akira WAMR-based runtime. When enabled, Akira will
       build and link the wasm-micro-runtime (WAMR) and register native APIs.
@@ -70,7 +70,7 @@ config AKIRA_RUNTIME_CUSTOM
 
 config WAMR_HEAP_SIZE
     int "WAMR heap warning threshold (bytes)"
-    default 16384
+    default 262144
     help
       Soft quota warning threshold for WAMR dynamic allocations.
       The runtime now uses Alloc_With_Allocator (PSRAM-first,
@@ -88,7 +88,7 @@ config AKIRA_WASM_APP_STACK_SIZE
     # 8 KB is sufficient for WAMR instantiate + fs I/O + native dispatch.
     # Constrained non-PSRAM boards (nRF54L15, etc.) can reduce to 4096.
     int "WASM app Zephyr thread stack size (bytes)"
-    default 4096
+    default 8192
     depends on AKIRA_WASM_RUNTIME
     help
       Stack size for the Zephyr k_thread that hosts each WASM app.
@@ -118,7 +118,7 @@ config AKIRA_WASM_APP_PRIORITY
 
 config MAX_CONTAINERS
     int "Maximum number of concurrently loaded WASM containers"
-    default 4
+    default 8
     help
       Maximum number of WASM instances that can be loaded concurrently.
       Boards with more PSRAM can increase this value (CONFIG_MAX_CONTAINERS).
@@ -277,7 +277,7 @@ config AKIRA_MODULE_WIFI
 
 config AKIRA_HID
     bool "Enable HID subsystem"
-    default n
+    default y
     help
       Enable unified HID (Human Interface Device) subsystem.
       Allows AkiraOS to act as a keyboard, gamepad, or other HID device.
@@ -333,7 +333,7 @@ config AKIRA_BT_HID
 
 config AKIRA_BT_ECHO
     bool "Enable Bluetooth Echo service"
-    default n
+    default y
     depends on BT
     help
       Enable a small developer GATT Echo service. The service receives writes
@@ -699,7 +699,7 @@ config AKIRA_APP_MANAGER
 
 config AKIRA_APP_MAX_INSTALLED
     int "Maximum installed apps"
-    default 4
+    default 8
     range 4 16
     depends on AKIRA_APP_MANAGER
     help
@@ -717,7 +717,7 @@ config AKIRA_APP_MAX_RUNNING
 
 config AKIRA_APP_MAX_SIZE_KB
     int "Maximum app size (KB)"
-    default 32
+    default 1024
     range 16 2048
     depends on AKIRA_APP_MANAGER
     help
@@ -751,7 +751,7 @@ config AKIRA_APP_SOURCE_HTTP
 
 config AKIRA_APP_SOURCE_BLE
     bool "Enable BLE app transfer"
-    default n
+    default y
     depends on AKIRA_APP_MANAGER && BT
     help
       Allow app installation via Bluetooth GATT transfer.
@@ -815,7 +815,7 @@ menu "OTA Updates"
 
 config AKIRA_OTA
     bool "Enable OTA updates"
-    default n
+    default y
     help
       Enable Over-The-Air firmware update support.
 
@@ -828,7 +828,7 @@ config AKIRA_OTA_HTTP
 
 config AKIRA_OTA_BLE
     bool "Enable BLE OTA transport"
-    default n
+    default y
     depends on AKIRA_OTA && BT
     help
       Enable OTA updates via Bluetooth Low Energy.
@@ -921,7 +921,7 @@ config AKIRA_BATTERY_ADC_VDIV_MUL
 
 config AKIRA_WASM_POWER
     bool "Enable WASM power/battery read API"
-    default n
+    default y
     depends on AKIRA_POWER_MANAGER && AKIRA_WASM_RUNTIME
     help
       Expose power_get_mode, power_get_battery_level and
@@ -1043,7 +1043,7 @@ config AKIRA_MODULE_CACHE
 
 config AKIRA_MODULE_CACHE_SIZE
     int "Module cache entries"
-    default 2
+    default 4
     range 2 8
     depends on AKIRA_MODULE_CACHE
     help
@@ -1136,6 +1136,10 @@ config AKIRA_LSM6DS3_DRIVER
       Zephyr's upstream lsm6dsl driver (expects 0x6A).
       Use compatible "akira,lsm6ds3" in your board DTS overlay.
 
+config MPU6050_DRIVER
+    bool "AkiraOS out-of-tree MPU6050 IMU driver"
+    depends on I2C && SENSOR
+
 config AKIRA_ILI9341_DRIVER
     bool "AkiraOS out-of-tree ILI9341 display driver"
     depends on DISPLAY && SPI
@@ -1160,7 +1164,7 @@ menu "BLE App API"
 
 config AKIRA_WASM_BLE
     bool "Export BLE App API to WASM"
-    default n
+    default y
     depends on AKIRA_WASM_API && BT
     select BT_GATT_DYNAMIC_DB
     help
@@ -1259,7 +1263,7 @@ config AKIRA_NET_MAX_MSG_SIZE
 
 config AKIRA_WASM_HID
     bool "Export HID API to WASM"
-    default n
+    default y
     depends on AKIRA_WASM_API && AKIRA_HID
     help
       Export HID keyboard, gamepad, mouse, consumer media key, raw report,
@@ -1319,7 +1323,7 @@ config AKIRA_IPC_MAX_SUBS_PER_TOPIC
 
 config AKIRA_IPC_MSG_MAX_SIZE
     int "Maximum IPC message payload size (bytes)"
-    default 16
+    default 64
     range 16 1024
     depends on AKIRA_WASM_IPC
     help
@@ -1355,7 +1359,7 @@ config AKIRA_WASM_TIMER_MAX_HANDLES
 
 config AKIRA_WASM_UART
     bool "Export UART API to WASM"
-    default n
+    default y
     depends on AKIRA_WASM_API && SERIAL
     help
       Export UART read/write functions to WASM applications.
@@ -1374,7 +1378,7 @@ config AKIRA_WASM_UART_RX_BUF_SIZE
 
 config AKIRA_WASM_I2C
     bool "Export I2C API to WASM"
-    default n
+    default y
     depends on AKIRA_WASM_API && I2C
     help
       Export raw I2C register read/write functions to WASM applications.
