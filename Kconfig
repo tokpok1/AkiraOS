@@ -1385,6 +1385,15 @@ config AKIRA_WASM_I2C
       Stateless API: WASM passes bus_id + device address + register per call.
       Requires AKIRA_CAP_I2C capability in the app manifest.
 
+config AKIRA_WASM_ADC
+    bool "Export ADC API to WASM"
+    default y
+    depends on AKIRA_WASM_API && ADC
+    help
+      Export raw ADC read function to WASM applications.
+      Stateless API: WASM passes adc_id + channel per call.
+      Requires AKIRA_CAP_ADC capability in the app manifest.
+
 config AKIRA_WASM_PWM
     bool "Export PWM API to WASM"
     default n

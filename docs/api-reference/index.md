@@ -49,6 +49,7 @@ There are **two API layers** in AkiraOS:
 | [Timer](#timer-api) | `timer_create`, `timer_start`, `timer_elapsed`, `timer_free` | `CONFIG_AKIRA_WASM_TIMER` |
 | [UART](#uart-api) | `uart_open`, `uart_write`, `uart_read`, `uart_close` | `CONFIG_AKIRA_WASM_UART` |
 | [I2C](#i2c-api) | `i2c_write_reg`, `i2c_read_reg` | `CONFIG_AKIRA_WASM_I2C` |
+| [ADC](#adc-api) | `adc_read` | `CONFIG_AKIRA_WASM_ADC` |
 | [PWM](#pwm-api) | `pwm_set`, `pwm_disable` | `CONFIG_AKIRA_WASM_PWM` |
 | [Power](#power-api) | `power_get_battery_level`, `power_set_mode`, `power_wake_on_gpio` | `CONFIG_AKIRA_WASM_POWER` |
 | [Memory](#memory-api) | `mem_alloc`, `mem_free` | `CONFIG_AKIRA_WASM_MEMORY` |

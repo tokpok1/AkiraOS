@@ -158,6 +158,7 @@ static int cmd_akira_hal(const struct shell *sh, size_t argc, char **argv)
     shell_print(sh, "  WiFi: %s", akira_hal_has_feature(AKIRA_HAL_WIFI) ? "yes" : "no");
     shell_print(sh, "  BT: %s", akira_hal_has_feature(AKIRA_HAL_BT) ? "yes" : "no");
     shell_print(sh, "  Display: %s", akira_hal_has_feature(AKIRA_HAL_DISPLAY) ? "yes" : "no");
+    shell_print(sh, "  ADC: %s", akira_hal_has_feature(AKIRA_HAL_ADC) ? "yes" : "no");
 
     return 0;
 }

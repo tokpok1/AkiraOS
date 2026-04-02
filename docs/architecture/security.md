@@ -50,6 +50,7 @@ AkiraOS implements a **multi-layered security architecture** combining WASM sand
 #define AKIRA_CAP_UART           (1U << 12) // Serial communication
 #define AKIRA_CAP_I2C            (1U << 13) // I2C bus access
 #define AKIRA_CAP_PWM            (1U << 14) // PWM output
+#define AKIRA_CAP_ADC            (1U << 23) // ADC acces
 
 // System & App Control (Bits 16-22) - ELEVATED PRIVILEGES
 #define AKIRA_CAP_APP_CONTROL    (1U << 16) // Start/stop apps (ELEVATED)
@@ -205,7 +206,7 @@ Apps declare required capabilities in an embedded WASM custom section.
 
 **Capability String Namespace:**
 Supported capability strings (30+ mappings):
-- **Hardware:** `"display.write"`, `"input.read"`, `"input.write"`, `"sensor.read"`, `"gpio.read"`, `"gpio.write"`, `"i2c"`, `"uart"`, `"pwm"`
+- **Hardware:** `"display.write"`, `"input.read"`, `"input.write"`, `"sensor.read"`, `"gpio.read"`, `"gpio.write"`, `"i2c"`, `"uart"`, `"pwm"`,`"adc"`
 - **Communication:** `"rf"`, `"ble"`, `"network"`, `"hid"`
 - **Storage:** `"storage.read"`, `"storage.write"`
 - **System:** `"timer"`, `"memory"`, `"power.read"`, `"power.control"`, `"app.control"`, `"app.switch"`, `"app.info"`, `"ipc"`

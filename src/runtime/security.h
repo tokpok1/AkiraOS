@@ -57,7 +57,7 @@ extern "C" {
  * Elevated privilege — do not grant to untrusted apps.
  * Manifest string: "power.control" */
 #define AKIRA_CAP_POWER_CTRL  (1U << 22)
-
+#define AKIRA_CAP_ADC         (1U << 23)
 /*
  * Capability check macro using security subsystem.
  * Delegates to akira_security_check_exec() for centralized permission validation.

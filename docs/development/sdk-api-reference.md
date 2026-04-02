@@ -35,6 +35,7 @@ Include the single SDK header in every app:
 | **IPC** | `ipc` | `msg_publish`, `msg_subscribe`, `msg_recv`, `msg_try_recv` |
 | **UART** | `uart` | `uart_open`, `uart_write`, `uart_read`, `uart_close` |
 | **I2C** | `i2c` | `i2c_write_reg`, `i2c_read_reg` |
+| **ADC** | `adc_read` |
 | **PWM** | `pwm` | `pwm_set` |
 | **Lifecycle** | `app.control` | `app_start`, `app_stop`, `app_list` |
 | **Memory** | _(always available)_ | `mem_alloc`, `mem_free` |

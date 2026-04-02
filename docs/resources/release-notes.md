@@ -117,6 +117,7 @@ v1.4.9 adds 13 new API domains exposed to sandboxed WASM apps:
 | Display | `display_fill`, `display_draw_rect`, `display_blit` |
 | Sensor | `sensor_read`, `sensor_start` |
 | BLE | 12-function BLE App API |
+| ADC | `adc_read` |
 | BT HID | `bt_hid_send_key`, `bt_hid_send_media` |
 | Network | `net_tcp_connect`, `net_tcp_send`, `net_udp_send`, `net_recv` |
 | Storage / FS | `fs_open`, `fs_read`, `fs_write`, `fs_close`, `fs_list` |

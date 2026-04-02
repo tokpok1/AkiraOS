@@ -56,6 +56,10 @@
 #include "akira_i2c_api.h"
 #endif
 
+#ifdef CONFIG_AKIRA_WASM_ADC
+#include "akira_adc_api.h"
+#endif
+
 #ifdef CONFIG_AKIRA_WASM_PWM
 #include "akira_pwm_api.h"
 #endif

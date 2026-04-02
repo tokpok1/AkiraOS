@@ -257,6 +257,10 @@ if(CONFIG_AKIRA_WASM_I2C)
     target_sources(app PRIVATE src/api/akira_i2c_api.c)
 endif()
 
+if(CONFIG_AKIRA_WASM_ADC)
+    target_sources(app PRIVATE src/api/akira_adc_api.c)
+endif()
+
 if(CONFIG_AKIRA_WASM_PWM)
     target_sources(app PRIVATE src/api/akira_pwm_api.c)
 endif()

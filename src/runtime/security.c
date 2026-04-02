@@ -32,6 +32,7 @@ uint32_t akira_capability_str_to_mask(const char *cap)
     if (strcmp(cap, "i2c") == 0)            return AKIRA_CAP_I2C;
     if (strcmp(cap, "pwm") == 0)            return AKIRA_CAP_PWM;
     if (strcmp(cap, "hid") == 0)            return AKIRA_CAP_HID;
+    if (strcmp(cap, "adc") == 0)            return AKIRA_CAP_ADC;
     if (strcmp(cap, "app.control") == 0)    return AKIRA_CAP_APP_CONTROL;
     if (strcmp(cap, "ipc") == 0)            return AKIRA_CAP_IPC;
     if (strcmp(cap, "app.switch") == 0)     return AKIRA_CAP_APP_SWITCH;
@@ -50,7 +51,7 @@ uint32_t akira_capability_str_to_mask(const char *cap)
     if (strcmp(cap, "storage.*") == 0)      return AKIRA_CAP_STORAGE_READ | AKIRA_CAP_STORAGE_WRITE;
     if (strcmp(cap, "gpio.*") == 0)         return AKIRA_CAP_GPIO_READ | AKIRA_CAP_GPIO_WRITE;
     if (strcmp(cap, "network.*") == 0)      return AKIRA_CAP_NETWORK;
-    if (strcmp(cap, "hw.*") == 0)           return AKIRA_CAP_TIMER | AKIRA_CAP_UART | AKIRA_CAP_I2C | AKIRA_CAP_PWM;
+    if (strcmp(cap, "hw.*") == 0)           return AKIRA_CAP_TIMER | AKIRA_CAP_UART | AKIRA_CAP_I2C | AKIRA_CAP_ADC | AKIRA_CAP_PWM;
     if (strcmp(cap, "*") == 0)              return 0xFFFFFFFF;
     return 0;
 }
@@ -70,6 +71,7 @@ char* akira_capability_mask_to_str(uint32_t cap)
     if (cap & AKIRA_CAP_TIMER) return "timer";
     if (cap & AKIRA_CAP_UART)  return "uart";
     if (cap & AKIRA_CAP_I2C)   return "i2c";
+    if (cap & AKIRA_CAP_ADC)   return "adc";
     if (cap & AKIRA_CAP_PWM)   return "pwm";
     if (cap & AKIRA_CAP_HID)         return "hid";
     if (cap & AKIRA_CAP_APP_CONTROL) return "app.control";

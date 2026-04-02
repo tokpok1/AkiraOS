@@ -107,6 +107,7 @@ extern "C"
         APP_PERM_NETWORK = (1 << 6),
         APP_PERM_BLE = (1 << 7),
         APP_PERM_RF = (1 << 8),
+        APP_PERM_ADC = (1 << 9),
         APP_PERM_ALL = 0xFFFF,
     } app_permissions_t;
 

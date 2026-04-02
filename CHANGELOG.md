@@ -122,6 +122,7 @@ New native functions registered into the WASM sandbox (`akira_export_api.c`):
 | GPIO / Input | `gpio_set`, `gpio_get`, `button_event_pop` |
 | Timer | `timer_create`, `timer_start`, `timer_stop`, `timer_delete` |
 | UART / I2C / PWM | `uart_write`, `i2c_read`, `i2c_write`, `pwm_set` |
+| ADC | `adc_read` |
 | Display | `display_fill`, `display_draw_rect`, `display_draw_line`, `display_draw_circle`, `display_blit` |
 | Sensor | `sensor_read`, `sensor_start`, `sensor_stop` |
 | BLE | Full BLE App API (12 functions, see Connectivity) |

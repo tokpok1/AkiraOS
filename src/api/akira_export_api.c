@@ -148,6 +148,10 @@ bool akira_register_native_apis()
         {"i2c_read_reg",  (void *)akira_native_i2c_read_reg,  "(iii*~)i", NULL},
         #endif
 
+        #ifdef CONFIG_AKIRA_WASM_ADC
+        {"adc_read", (void *)akira_native_adc_read, "(ii*)i", NULL},
+        #endif
+
         #ifdef CONFIG_AKIRA_WASM_PWM
         {"pwm_set",     (void *)akira_native_pwm_set,     "(iii)i", NULL},
         {"pwm_disable", (void *)akira_native_pwm_disable, "(i)i",   NULL},

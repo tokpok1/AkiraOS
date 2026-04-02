@@ -135,7 +135,7 @@ CONFIG_HEAP_MEM_POOL_SIZE=262144  # 256KB WASM heap
 - ADC (analog sensors)
 - PWM (motors, LEDs)
 - GPIO (digital I/O)
-
+- ADC (sensors)
 **Pin Configuration:** Edit device tree overlay
 
 ### Network Stack

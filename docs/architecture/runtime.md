@@ -219,13 +219,14 @@ Custom capability-based access control system.
 #define AKIRA_CAP_STORAGE_READ   (1U << 6)
 #define AKIRA_CAP_STORAGE_WRITE  (1U << 7)
 
-// Peripherals (Bits 9-10, 11-14)
+// Peripherals (Bits 9-10, 11-14 and 23)
 #define AKIRA_CAP_GPIO_READ      (1U << 9)
 #define AKIRA_CAP_GPIO_WRITE     (1U << 10)
 #define AKIRA_CAP_TIMER          (1U << 11)
 #define AKIRA_CAP_UART           (1U << 12)
 #define AKIRA_CAP_I2C            (1U << 13)
 #define AKIRA_CAP_PWM            (1U << 14)
+#define AKIRA_CAP_ADC            (1U << 23)
 
 // System & App Control (Bits 16-22)
 #define AKIRA_CAP_APP_CONTROL    (1U << 16)  // Start/stop apps

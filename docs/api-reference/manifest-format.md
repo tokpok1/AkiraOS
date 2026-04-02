@@ -110,6 +110,7 @@ Array of permission strings.
 | `rf.transceive` | All `rf_*()` radio functions |
 | `uart` | All `uart_*()` functions |
 | `i2c` | All `i2c_*()` functions |
+| `adc` | All `adc_*()` functions |
 | `pwm` | All `pwm_*()` functions |
 | `power.read` | `power_get_*()` |
 | `power.control` | `power_set_*()`, `power_wake_*()` |
@@ -139,7 +140,7 @@ The following group aliases are recognized and expand to all capabilities of tha
 | `storage.*` | `storage.read` + `storage.write` |
 | `gpio.*` | `gpio.read` + `gpio.write` |
 | `bt.*` | `ble` + `hid` |
-| `hw.*` | `timer` + `uart` + `i2c` + `pwm` |
+| `hw.*` | `timer` + `uart` + `i2c` + `pwm` + `adc`|
 | `power.*` | `power.read` + `power.control` |
 | `*` | All capabilities |
 

@@ -15,7 +15,7 @@ AkiraOS is a high-performance embedded operating system combining **Zephyr RTOS*
 - **Target:** ESP32-S3 (primary), nRF54L15, STM32 (supported)
 - **RAM:** 512KB SRAM + 2-8MB PSRAM
 - **Flash:** 8-16MB for firmware + apps
-- **Peripherals:** SPI, I2C, UART, GPIO, WiFi, Bluetooth
+- **Peripherals:** SPI, I2C, UART, ADC, GPIO, WiFi, Bluetooth
 
 ### Kernel Layer (Zephyr RTOS)
 - **Scheduler:** Preemptive multitasking with priority queues
