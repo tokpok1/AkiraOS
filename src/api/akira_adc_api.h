@@ -5,11 +5,10 @@
 
 /**
  * @file akira_adc_api.h
- * @brief Raw ADC register read API for WASM applications
+ * @brief Raw ADC read API for WASM applications
  *
- * Stateless API — no handles. WASM passes bus_id + device_addr + reg_addr
- * per call. Buses are lazily resolved from the device tree on first use.
- * Supports standard 7-bit addressing and register-based burst I/O.
+ * Stateless API - no handles. WASM passes adc_id + channel per call.
+ * ADC controllers are resolved from the device tree on demand.
  */
 
 #ifndef AKIRA_ADC_API_H
@@ -30,7 +29,7 @@ extern "C" {
 /**
  * @brief Read value from an ADC channel.
  *
- * @param adc_id  ADC controller ID (0 = adc0, 1 = adc1).
+ * @param adc_id  ADC controller ID (0 = adc0 or adc1 fallback, 1 = adc1).
  * @param channel ADC channel number.
  * @param value   Pointer to destination integer in WASM linear memory.
  *

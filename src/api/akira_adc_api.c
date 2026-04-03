@@ -14,11 +14,8 @@ LOG_MODULE_REGISTER(akira_adc, CONFIG_AKIRA_LOG_LEVEL);
 #include <zephyr/device.h>
 #include <zephyr/drivers/adc.h>
 #include <errno.h>
-#include <string.h>
 
 #ifdef CONFIG_AKIRA_WASM_RUNTIME
-
-#define AKIRA_ADC_MAX_DEVICES 2
 
 static K_MUTEX_DEFINE(s_adc_lock);
 
@@ -28,18 +25,32 @@ static K_MUTEX_DEFINE(s_adc_lock);
 
 static const struct device *get_adc(int32_t adc_id)
 {
-    const struct device *dev;
+    const struct device *dev = NULL;
 
     switch (adc_id) {
     case 0:
-        dev = DEVICE_DT_GET(DT_NODELABEL(adc1));
+#if DT_NODE_EXISTS(DT_NODELABEL(adc0))
+    dev = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(adc0));
+#elif DT_NODE_EXISTS(DT_NODELABEL(adc1))
+        /* Some boards expose only adc1; allow adc_id=0 as a fallback. */
+    dev = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(adc1));
+#else
+        return NULL;
+#endif
+        break;
+    case 1:
+#if DT_NODE_EXISTS(DT_NODELABEL(adc1))
+    dev = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(adc1));
+#else
+        return NULL;
+#endif
         break;
     default:
         return NULL;
     }
 
-    if (!device_is_ready(dev)) {
-        LOG_ERR("adc device not ready");
+    if (!dev || !device_is_ready(dev)) {
+        LOG_ERR("adc%d device not ready", adc_id);
         return NULL;
     }
 
