@@ -41,8 +41,8 @@
 
 	i2c1_default: i2c1_default {
 		group1 {
-			pinmux = <I2C1_SDA_GPIO4>,
-				 <I2C1_SCL_GPIO5>;
+			pinmux = <I2C1_SDA_GPIO1>,
+				 <I2C1_SCL_GPIO2>;
 			bias-pull-up;
 			drive-open-drain;
 			output-high;
@@ -62,8 +62,8 @@
 	i2s1_default: i2s1_default {
 		group1 {
 			pinmux = <I2S1_MCLK_GPIO38>,
-				 <I2S1_O_WS_GPIO4>,
-				 <I2S1_O_BCK_GPIO5>,
+				 <I2S1_O_WS_GPIO21>,
+				 <I2S1_O_BCK_GPIO40>,
 				 <I2S1_O_SD_GPIO6>,
 				 <I2S1_I_SD_GPIO12>;
 		};

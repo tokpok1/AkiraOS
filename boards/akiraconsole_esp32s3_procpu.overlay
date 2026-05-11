@@ -26,13 +26,14 @@
         };
     };
 
-    // I2C0: LSM6DS3 IMU or MPU6050 IMU (SDA=GPIO8, SCL=GPIO18)
+    // I2C0: use SDA=GPIO1, SCL=GPIO2 (alternate pin assignment)
     i2cm0_default: i2cm0_default {
         group1 {
-            pinmux = <I2C0_SDA_GPIO8>,
-                     <I2C0_SCL_GPIO18>;
+            pinmux = <I2C0_SDA_GPIO1>,
+                     <I2C0_SCL_GPIO2>;
             bias-pull-up;
             drive-open-drain;
+            output-high;
         };
     };
 };
@@ -224,12 +225,6 @@
             zephyr,code = <5>; // AKIRA_BTN_RIGHT
         };
         
-        button_left: button_left {
-            gpios = <&gpio0 6 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>; // GPIO6
-            label = "Button Left";
-            zephyr,code = <4>; // AKIRA_BTN_LEFT
-        };
-        
     };
 };
 
@@ -322,6 +317,7 @@
 		};
     };
 };
+
 &adc1 {
     status = "okay";
     #address-cells = <1>;
@@ -336,4 +332,11 @@
         zephyr,resolution = <12>;
     };
 
+    channel@1 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,resolution = <12>;
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+    };
 };

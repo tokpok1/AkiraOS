@@ -40,6 +40,10 @@
 #include <zephyr/net/wifi_mgmt.h>
 #endif
 #include <zephyr/net/net_mgmt.h>
+#ifdef CONFIG_ADC
+#include <zephyr/devicetree.h>
+#include <zephyr/drivers/adc.h>
+#endif
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

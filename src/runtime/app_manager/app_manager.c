@@ -89,6 +89,8 @@ static app_entry_t g_registry[CONFIG_AKIRA_APP_MAX_INSTALLED];
 static uint8_t g_app_count = 0;
 static bool g_initialized = false;
 static K_MUTEX_DEFINE(g_registry_mutex);
+/* Apps that were RUNNING when registry was saved and should be restarted at boot. */
+static bool g_pending_autostart[CONFIG_AKIRA_APP_MAX_INSTALLED];
 
 /* Install sessions for chunked upload */
 #define MAX_INSTALL_SESSIONS 2
@@ -146,6 +148,7 @@ int app_manager_init(void)
 
     /* Initialize registry */
     memset(g_registry, 0, sizeof(g_registry));
+    memset(g_pending_autostart, 0, sizeof(g_pending_autostart));
     memset(g_sessions, 0, sizeof(g_sessions));
     g_app_count = 0;
 
@@ -172,6 +175,29 @@ int app_manager_init(void)
     akira_runtime_set_exit_callback(app_manager_on_runtime_exit);
 
     g_initialized = true;
+
+    /* Restore apps that were RUNNING before an unexpected reboot/power loss.
+     * registry_load() marks them INSTALLED + pending autostart. */
+    for (int i = 0; i < CONFIG_AKIRA_APP_MAX_INSTALLED; i++)
+    {
+        if (!g_pending_autostart[i] || g_registry[i].name[0] == '\0')
+        {
+            continue;
+        }
+
+        int sret = app_manager_start(g_registry[i].name);
+        if (sret < 0)
+        {
+            LOG_WRN("Autostart failed for %s: %d", g_registry[i].name, sret);
+        }
+        else
+        {
+            LOG_INF("Autostarted app: %s", g_registry[i].name);
+        }
+
+        g_pending_autostart[i] = false;
+    }
+
     LOG_INF("App Manager initialized, %d/%d slots used",
             g_app_count, CONFIG_AKIRA_APP_MAX_INSTALLED);
 
@@ -1248,9 +1274,20 @@ static int registry_load(void)
         g_registry[i].container_id = -1;
         if (g_registry[i].state == APP_STATE_RUNNING)
         {
+            g_pending_autostart[i] = true;
             g_registry[i].state = APP_STATE_INSTALLED;
         }
+        else
+        {
+            g_pending_autostart[i] = false;
+        }
     }
+
+    for (int i = count; i < CONFIG_AKIRA_APP_MAX_INSTALLED; i++)
+    {
+        g_pending_autostart[i] = false;
+    }
+
     return 0;
 }
 

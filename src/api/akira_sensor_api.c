@@ -22,7 +22,6 @@ LOG_MODULE_REGISTER(akira_sensor, CONFIG_AKIRA_LOG_LEVEL);
 #include "akira_api.h"
 #include "akira_sensor_api.h"
 #include <runtime/security.h>
-#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <errno.h>
 

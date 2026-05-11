@@ -39,6 +39,11 @@
 			zephyr,code = <INPUT_KEY_0>;
 		};
 	};
+
+	 flex_adc: flex_adc {
+        compatible = "zephyr,adc-channel-group";
+        io-channels = <&adc1 3>;
+    };
 };
 
 &uart0 {
@@ -149,4 +154,27 @@
 
 zephyr_udc0: &usb_otg {
 	status = "okay";
+};
+
+
+&adc1 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,resolution = <12>;
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+    };
+
+	channel@01 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,resolution = <12>;
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+    };
 };

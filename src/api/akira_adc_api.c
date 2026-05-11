@@ -45,6 +45,14 @@ static const struct device *get_adc(int32_t adc_id)
         return NULL;
 #endif
         break;
+    case 2:
+    /* Alias for ADC unit 2 on ESP32-family targets. */
+#if DT_NODE_EXISTS(DT_NODELABEL(adc1))
+    dev = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(adc1));
+#else
+    return NULL;
+#endif
+    break;
     default:
         return NULL;
     }
